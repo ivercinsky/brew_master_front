@@ -3,6 +3,7 @@ import './App.css';
 import GridAttributes from './GridAttributes.js'
 import ListAttributes from "./ListAttributes.js"
 import {Grid, Row} from 'react-bootstrap';
+import {arrayMove} from 'react-sortable-hoc';
 class App extends Component {
   constructor() {
     super();
@@ -94,6 +95,64 @@ class App extends Component {
       }
     };
   }
+
+  addNewGrain() {
+    var new_state = Object.assign(this.state);
+    new_state.grains.attrs.push({
+      name:"",
+      extract: 0,
+      color: 0,
+      amount: 0,
+      use: ""
+    });
+    this.setState(new_state);
+  }
+
+  addNewHop() {
+    var new_state = Object.assign(this.state);
+    new_state.hops.attrs.push({
+      name: "",
+      alfa_acid: 0,
+      mode: "",
+      amount:0,
+      use: "",
+      time:60,
+    });
+    this.setState(new_state);
+  }
+
+  addNewYeast() {
+    var new_state = Object.assign(this.state);
+    new_state.yeasts.attrs.push({
+      yeast: "",
+      amount: 0,
+      density: 0,
+      package_size:0,
+      atenuation:0,
+      inoculation_rate:"",
+      optimal_amount:0,
+      excess_amount:0,
+      packages:0
+    })
+    this.setState(new_state);
+  }
+  addNewOther() {
+    var new_state = Object.assign(this.state);
+    new_state.others.attrs.push({
+      name:"",
+      type:"",
+      use: "",
+      time: 0,
+      amount: 0
+    });
+    this.setState(new_state);
+  }
+  onSortEnd(data, e) {
+    var new_state = Object.assign(this.state);
+    new_state[data.collection].attrs = arrayMove(new_state[data.collection].attrs, data.oldIndex, data.newIndex);
+    new_state.main.name = "Change " + data.collection;
+    this.setState(new_state);
+  }
   render() {
     return (
       <div className="App">
@@ -102,16 +161,16 @@ class App extends Component {
             <GridAttributes key="mainAttrs" rows={2} cols={4} title={Object.keys(this.state)[0]} attrs={this.state.main} />
           </Row>
           <Row>
-            <ListAttributes key="grains" title={Object.keys(this.state)[1]} attrs={this.state.grains.attrs} />
+            <ListAttributes onSortEnd={this.onSortEnd.bind(this)} key="grains" handleClick={this.addNewGrain.bind(this)} title={Object.keys(this.state)[1]} attrs={this.state.grains.attrs} />
           </Row>
           <Row>
-            <ListAttributes key="hops" title={Object.keys(this.state)[2]} attrs={this.state.hops.attrs} />
+            <ListAttributes  key="hops" handleClick={this.addNewHop.bind(this)} title={Object.keys(this.state)[2]} attrs={this.state.hops.attrs} />
           </Row>
           <Row>
-            <ListAttributes key="yeast" title={Object.keys(this.state)[3]} attrs={this.state.yeasts.attrs} />
+            <ListAttributes  key="yeast" handleClick={this.addNewYeast.bind(this)} title={Object.keys(this.state)[3]} attrs={this.state.yeasts.attrs} />
           </Row>
           <Row>
-            <ListAttributes key="others" title={Object.keys(this.state)[4]} attrs={this.state.others.attrs} />
+            <ListAttributes  key="others" handleClick={this.addNewOther.bind(this)} title={Object.keys(this.state)[4]} attrs={this.state.others.attrs} />
           </Row>
         </Grid>
       </div>

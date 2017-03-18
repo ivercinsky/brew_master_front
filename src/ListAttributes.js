@@ -1,5 +1,27 @@
 import React, { Component } from 'react';
 import {Panel, FormControl, Table, Button} from 'react-bootstrap';
+import {SortableContainer, SortableElement} from 'react-sortable-hoc';
+
+
+const SortableItem = SortableElement(({key, index, attr, collection}) =>
+    <tr key={key}>{Object.keys(attr).map((key, index) => (
+            <td key={index}><FormControl type="text" defaultValue={attr[key]}/></td> 
+        ))}
+    </tr>
+);
+
+const SortableList = SortableContainer(({attrs, collection}) => {
+  return (
+    <tbody>
+      {attrs.map((attr, index) => (
+        <SortableItem key={`item-${index}`} index={index} attr={attr} collection={collection} />
+      ))}
+    </tbody>
+  );
+});
+
+
+
 class ListAttributes extends Component {
     capitilize(string) {
         const words = string.split("_");
@@ -23,18 +45,9 @@ class ListAttributes extends Component {
                             }
                         </tr>
                     </thead>
-                    <tbody>
-                        {
-                            this.props.attrs.map((attr, index) => (
-                                <tr key={index}>{Object.keys(attr).map((key, index) => (
-                                        <td key={index}><FormControl type="text" defaultValue={attr[key]}/></td> 
-                                    ))}
-                                </tr>
-                            ))
-                        }
-                    </tbody>
+                    <SortableList attrs={this.props.attrs} collection={this.props.title} onSortEnd={this.props.onSortEnd} />
                 </Table>
-                <Button bsStyle="success">Add New {this.props.title}</Button>
+                <Button onClick={this.props.handleClick} bsStyle="success">Add New {this.props.title}</Button>
             </Panel>
         );
     }
