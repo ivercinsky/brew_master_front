@@ -4,18 +4,20 @@ import {SortableContainer, SortableElement} from 'react-sortable-hoc';
 
 
 const SortableItem = SortableElement(({key, index, attr, collection}) =>
-    <tr key={key}>{Object.keys(attr).map((key, index) => (
-            <td key={index}><FormControl type="text" defaultValue={attr[key]}/></td> 
-        ))}
+    <tr key={key}>
+        {Object.keys(attr).map((key2, index) => {
+            if (key2=='id') return;
+            return (<td key={collection + "_" + key2}><FormControl type="text" defaultValue={attr[key2]}/></td> );
+        })}
     </tr>
 );
 
 const SortableList = SortableContainer(({attrs, collection}) => {
   return (
     <tbody>
-      {attrs.map((attr, index) => (
-        <SortableItem key={`item-${index}`} index={index} attr={attr} collection={collection} />
-      ))}
+      {attrs.map((attr, index) => {
+        return (<SortableItem key={collection + "_" + attr.id} index={index} attr={attr} collection={collection} />);
+      })}
     </tbody>
   );
 });
@@ -39,9 +41,10 @@ class ListAttributes extends Component {
                     <thead>
                         <tr>
                             {
-                                Object.keys(this.props.attrs[0]).map((key) => (
-                                    <th key={key}>{this.capitilize(key)}</th>
-                                ))
+                                Object.keys(this.props.attrs[0]).map((key) => {
+                                    if (key=='id') return;
+                                    return (<th key={key}>{this.capitilize(key)}</th>);
+                                })
                             }
                         </tr>
                     </thead>
