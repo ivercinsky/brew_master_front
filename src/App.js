@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
-import './App.css';
-import GridAttributes from './GridAttributes.js'
-import ListAttributes from "./ListAttributes.js"
-import {Grid, Row} from 'react-bootstrap';
+import Recipe from './Recipe.js'
 import {arrayMove} from 'react-sortable-hoc';
+import BrewHelper from './BrewHelper.js'
 class App extends Component {
-  constructor() {
-    super();
+    constructor() {
+        super();
     this.state = {
       main: {
         name: "SusanIPA",
@@ -16,21 +14,21 @@ class App extends Component {
         balance:1.97,
         style:"12C - English IPA (BJCP 2015)",
         ibu:50.6,
-        eficiency:70,
+        eficiency:75,
         abv:5.82
       },
       grains: {
         attrs: [{
           id:2,
           name:"Pale Ale",
-          extract: 1037,
+          extract: 1.037,
           color: 4,
           amount: 10,
           use: "MASH"
         },{
           id:1,
           name:"Caramelo 30",
-          extract: 1035,
+          extract: 1.035,
           color: 30,
           amount: 0.5,
           use: "MASH"
@@ -134,18 +132,15 @@ class App extends Component {
 
   addNewYeast() {
     var new_state = Object.assign(this.state);
-    new_state.yeasts.attrs.push({
-      id: new_state.yeasts.attrs.length+1,
-      yeast: "",
-      amount: 0,
-      density: 0,
-      package_size:0,
-      atenuation:0,
-      inoculation_rate:"",
-      optimal_amount:0,
-      excess_amount:0,
-      packages:0
-    })
+    const current_attr = new_state.yeasts.attrs[0];
+    var new_attr = Object.assign(current_attr);
+    Object.keys(new_attr).forEach((key) => {
+        new_attr[key]=0;
+    });
+    console.log(new_attr);
+    new_attr.id = new_state.yeasts.attrs.length+1;
+    new_state.yeasts.attrs.push(new_attr);
+    debugger;
     this.setState(new_state);
   }
   addNewOther() {
@@ -163,48 +158,36 @@ class App extends Component {
   onSortEnd(data, e) {
     var new_state = Object.assign(this.state);
     new_state[data.collection].attrs = arrayMove(new_state[data.collection].attrs, data.oldIndex, data.newIndex);
-    new_state.main.name = "Change " + data.collection;
+    new_state.main.title = "Change " + data.collection;
     this.setState(new_state);
   }
-
-  handleClickSubir(e) {
-    console.log(e.target);
-    const data = e.target.getAttribute("data");
-    const index = data.split("_")[0];
-    const collection = data.split("_")[1];
+  handleChange({target}) {
+    const data = target.name;
+    const [collection, attr, attr_id] = data.split("_");
     var new_state = Object.assign(this.state);
-    var current_collection = new_state[collection].attrs.concat([]);
-    var current_data = current_collection[index];
-    var prev_data = current_collection[index-1];
-    current_collection[index-1] = current_data;
-    current_collection[index]=prev_data;
-    new_state[collection].attrs = current_collection;
-    new_state.main.name = "Change " + collection;
+    var attr_old = new_state[collection].attrs.filter(({id}) => id == attr_id)[0];
+    attr_old[attr] = target.value;
+    new_state.main.original_gravity = BrewHelper.CalculateOG(new_state[collection].attrs, new_state.main.eficiency, new_state.main.batch_size);
     this.setState(new_state);
   }
-  render() {
-    return (
-      <div className="App">
-        <Grid fluid={true}>
-          <Row>
-            <GridAttributes key="mainAttrs" rows={2} cols={4} title={Object.keys(this.state)[0]} attrs={this.state.main} />
-          </Row>
-          <Row>
-            <ListAttributes key="grains" onSortEnd={this.onSortEnd.bind(this)} handleClick={this.addNewGrain.bind(this)} title={Object.keys(this.state)[1]} attrs={this.state.grains.attrs} handleClickSubir={this.handleClickSubir.bind(this)} />
-          </Row>
-          <Row>
-            <ListAttributes  key="hops" onSortEnd={this.onSortEnd.bind(this)} handleClick={this.addNewHop.bind(this)} title={Object.keys(this.state)[2]} attrs={this.state.hops.attrs} handleClickSubir={this.handleClickSubir.bind(this)}/>
-          </Row>
-          <Row>
-            <ListAttributes  key="yeast" onSortEnd={this.onSortEnd.bind(this)} handleClick={this.addNewYeast.bind(this)} title={Object.keys(this.state)[3]} attrs={this.state.yeasts.attrs} handleClickSubir={this.handleClickSubir.bind(this)}/>
-          </Row>
-          <Row>
-            <ListAttributes  key="others" onSortEnd={this.onSortEnd.bind(this)} handleClick={this.addNewOther.bind(this)} title={Object.keys(this.state)[4]} attrs={this.state.others.attrs} handleClickSubir={this.handleClickSubir.bind(this)}/>
-          </Row>
-        </Grid>
-      </div>
-    );
+  recipeParams() {
+    const params = {
+        main: this.state.main,
+        grains: this.state.grains,
+        hops: this.state.hops,
+        yeasts: this.state.yeasts,
+        others: this.state.others,
+        handleChange: this.handleChange.bind(this),
+        addNewHop: this.addNewHop.bind(this),
+        addNewGrain: this.addNewGrain.bind(this),
+        addNewOther: this.addNewOther.bind(this),
+        addNewYeast: this.addNewYeast.bind(this),
+        onSortEnd: this.onSortEnd.bind(this),
+    };
+    return params;
   }
+    render() {
+        return (<Recipe params={this.recipeParams.bind(this)}/>);
+    }
 }
-
 export default App;

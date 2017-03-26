@@ -6,7 +6,7 @@ class Attribute extends Component {
         return (<FormGroup bsSize="sm">
             <ControlLabel>{this.props.name}</ControlLabel>
             {' '}
-            <FormControl type="text" defaultValue={this.props.value}/>
+            <FormControl type="text" value={this.props.value} onChange={() => console.log("change")}/>
         </FormGroup>    
         );
     }
