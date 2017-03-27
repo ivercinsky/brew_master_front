@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
-import Recipe from './Recipe.js'
-import {arrayMove} from 'react-sortable-hoc';
-import BrewHelper from './BrewHelper.js'
-class App extends Component {
+import React from 'react';
+import GrainsContainer from '../containers/Grains'
+import HopsContainer from '../containers/Hops'
+
+/*class App extends Component {
     constructor() {
         super();
     this.state = {
@@ -187,7 +187,18 @@ class App extends Component {
     return params;
   }
     render() {
-        return (<Recipe params={this.recipeParams.bind(this)}/>);
+        return (
+          <div>
+            <Grains />
+          </div>
+        );
     }
-}
+}*/
+
+const App = () => (
+  <div>
+    <GrainsContainer />
+    <HopsContainer />
+  </div>
+) 
 export default App;
